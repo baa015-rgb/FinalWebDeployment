@@ -80,8 +80,8 @@ st.markdown(
             font-size: 15px;
             font-weight: 950;
             letter-spacing: 0;
-            margin: 0 0 14px;
-            padding-bottom: 10px;
+            margin: 0 0 9px;
+            padding-bottom: 8px;
         }
 
         .section-label::before {
@@ -89,7 +89,7 @@ st.markdown(
             border-radius: 999px;
             content: "";
             display: inline-block;
-            height: 22px;
+            height: 18px;
             margin-right: 10px;
             width: 5px;
         }
@@ -235,7 +235,7 @@ st.markdown(
             border: 1px solid #cad5e3 !important;
             border-radius: 12px !important;
             color: var(--text) !important;
-            min-height: 46px !important;
+            min-height: 42px !important;
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
             transition: border-color 160ms ease, box-shadow 160ms ease;
         }
@@ -288,13 +288,34 @@ st.markdown(
             padding: 0;
         }
 
+        div[data-testid="stForm"] div[data-testid="stVerticalBlock"] {
+            gap: 0.42rem;
+        }
+
+        div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] {
+            gap: 0.72rem;
+        }
+
+        div[data-testid="stForm"] [data-testid="stWidgetLabel"] {
+            margin-bottom: 0.15rem;
+        }
+
+        div[data-testid="stForm"] [data-testid="stWidgetLabel"] p {
+            font-size: 13px;
+            line-height: 1.15;
+        }
+
         div[data-testid="stVerticalBlockBorderWrapper"] {
             background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%) !important;
             border: 1px solid #d7e0eb !important;
             border-radius: 16px !important;
             box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
-            margin-bottom: 12px;
+            margin-bottom: 7px;
             overflow: hidden;
+        }
+
+        div[data-testid="stForm"] div[data-testid="stVerticalBlockBorderWrapper"] > div:first-child {
+            padding: 14px 16px 12px !important;
         }
 
         div[data-testid="stVerticalBlockBorderWrapper"]:hover {
@@ -304,7 +325,11 @@ st.markdown(
 
         div[data-testid="stSlider"],
         div[data-testid="stSelectSlider"] {
-            padding-bottom: 8px;
+            padding-bottom: 2px;
+        }
+
+        div[data-testid="stForm"] div[data-testid="stSelectbox"] {
+            margin-bottom: 0;
         }
 
         div[data-testid="stSlider"] div[role="slider"],
@@ -328,7 +353,7 @@ st.markdown(
             border: none;
             border-radius: 12px;
             min-width: 140px;
-            padding: 11px 20px;
+            padding: 10px 18px;
             width: 100%;
             box-shadow: 0 8px 18px rgba(242, 169, 0, 0.26);
             transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
@@ -776,9 +801,15 @@ with left_col:
         with st.container(border=True):
             st.markdown('<div class="section-label">Loan Terms</div>', unsafe_allow_html=True)
 
-            loan_col_1, loan_col_2 = st.columns(2)
+            purpose_options = [
+                "debt_consolidation", "credit_card", "home_improvement", "major_purchase",
+                "small_business", "car", "medical", "moving", "vacation", "house",
+                "renewable_energy", "educational", "wedding", "other"
+            ]
 
-            with loan_col_1:
+            loan_amount_col, interest_col, grade_col = st.columns([1, 1, 0.8])
+
+            with loan_amount_col:
                 loan_amount = input_slider(
                     "Loan amount",
                     min_value=1000,
@@ -789,21 +820,7 @@ with left_col:
                     key=f"{key_prefix}_loan_amount"
                 )
 
-                term = st.selectbox(
-                    "Term",
-                    ["36 months", "60 months"],
-                    index=["36 months", "60 months"].index(defaults["term"]),
-                    key=f"{key_prefix}_term"
-                )
-
-                grade = st.select_slider(
-                    "Grade",
-                    options=["A", "B", "C", "D", "E", "F", "G"],
-                    value=defaults["grade"],
-                    key=f"{key_prefix}_grade"
-                )
-
-            with loan_col_2:
+            with interest_col:
                 int_rate = input_slider(
                     "Interest rate",
                     min_value=5.0,
@@ -814,12 +831,25 @@ with left_col:
                     key=f"{key_prefix}_int_rate"
                 )
 
-                purpose_options = [
-                    "debt_consolidation", "credit_card", "home_improvement", "major_purchase",
-                    "small_business", "car", "medical", "moving", "vacation", "house",
-                    "renewable_energy", "educational", "wedding", "other"
-                ]
+            with grade_col:
+                grade = st.select_slider(
+                    "Grade",
+                    options=["A", "B", "C", "D", "E", "F", "G"],
+                    value=defaults["grade"],
+                    key=f"{key_prefix}_grade"
+                )
 
+            term_col, purpose_col = st.columns(2)
+
+            with term_col:
+                term = st.selectbox(
+                    "Term",
+                    ["36 months", "60 months"],
+                    index=["36 months", "60 months"].index(defaults["term"]),
+                    key=f"{key_prefix}_term"
+                )
+
+            with purpose_col:
                 purpose = st.selectbox(
                     "Purpose",
                     purpose_options,
@@ -831,9 +861,16 @@ with left_col:
         with st.container(border=True):
             st.markdown('<div class="section-label">Borrower Profile</div>', unsafe_allow_html=True)
 
-            borrower_col_1, borrower_col_2 = st.columns(2)
+            emp_options = [
+                "< 1 year", "1 year", "2 years", "3 years", "4 years", "5 years",
+                "6 years", "7 years", "8 years", "9 years", "10+ years"
+            ]
+            home_options = ["RENT", "MORTGAGE", "OWN", "OTHER", "ANY", "NONE"]
+            verification_options = ["Not Verified", "Source Verified", "Verified"]
 
-            with borrower_col_1:
+            income_col, dti_col = st.columns(2)
+
+            with income_col:
                 annual_inc = input_slider(
                     "Annual income",
                     min_value=15000,
@@ -844,38 +881,7 @@ with left_col:
                     key=f"{key_prefix}_annual_inc"
                 )
 
-                emp_options = [
-                    "< 1 year", "1 year", "2 years", "3 years", "4 years", "5 years",
-                    "6 years", "7 years", "8 years", "9 years", "10+ years"
-                ]
-
-                emp_length = st.selectbox(
-                    "Employment length",
-                    emp_options,
-                    index=emp_options.index(defaults["emp_length"]),
-                    key=f"{key_prefix}_emp_length"
-                )
-
-                home_options = ["RENT", "MORTGAGE", "OWN", "OTHER", "ANY", "NONE"]
-
-                home_ownership = st.selectbox(
-                    "Home ownership",
-                    home_options,
-                    index=home_options.index(defaults["home_ownership"]),
-                    format_func=lambda x: x.title(),
-                    key=f"{key_prefix}_home_ownership"
-                )
-
-            with borrower_col_2:
-                verification_options = ["Not Verified", "Source Verified", "Verified"]
-
-                verification_status = st.selectbox(
-                    "Verification status",
-                    verification_options,
-                    index=verification_options.index(defaults["verification_status"]),
-                    key=f"{key_prefix}_verification_status"
-                )
-
+            with dti_col:
                 dti = input_slider(
                     "Debt-to-income ratio",
                     min_value=0.0,
@@ -886,12 +892,39 @@ with left_col:
                     key=f"{key_prefix}_dti"
                 )
 
+            emp_col, home_col, verify_col = st.columns(3)
+
+            with emp_col:
+                emp_length = st.selectbox(
+                    "Employment length",
+                    emp_options,
+                    index=emp_options.index(defaults["emp_length"]),
+                    key=f"{key_prefix}_emp_length"
+                )
+
+            with home_col:
+                home_ownership = st.selectbox(
+                    "Home ownership",
+                    home_options,
+                    index=home_options.index(defaults["home_ownership"]),
+                    format_func=lambda x: x.title(),
+                    key=f"{key_prefix}_home_ownership"
+                )
+
+            with verify_col:
+                verification_status = st.selectbox(
+                    "Verification status",
+                    verification_options,
+                    index=verification_options.index(defaults["verification_status"]),
+                    key=f"{key_prefix}_verification_status"
+                )
+
         with st.container(border=True):
             st.markdown('<div class="section-label">Credit Profile</div>', unsafe_allow_html=True)
 
-            credit_col_1, credit_col_2 = st.columns(2)
+            credit_score_col, credit_history_col, open_accounts_col = st.columns(3)
 
-            with credit_col_1:
+            with credit_score_col:
                 fico_score = input_slider(
                     "FICO score",
                     min_value=640,
@@ -901,6 +934,7 @@ with left_col:
                     key=f"{key_prefix}_fico_score"
                 )
 
+            with credit_history_col:
                 credit_history_years = input_slider(
                     "Credit history years",
                     min_value=1,
@@ -910,6 +944,7 @@ with left_col:
                     key=f"{key_prefix}_credit_history_years"
                 )
 
+            with open_accounts_col:
                 open_acc = input_slider(
                     "Open accounts",
                     min_value=1,
@@ -919,25 +954,9 @@ with left_col:
                     key=f"{key_prefix}_open_acc"
                 )
 
-                delinq_2yrs = input_slider(
-                    "Delinquencies, last 2 years",
-                    min_value=0,
-                    max_value=10,
-                    value=int(defaults["delinq_2yrs"]),
-                    step=1,
-                    key=f"{key_prefix}_delinq_2yrs"
-                )
+            revol_bal_col, revol_util_col = st.columns(2)
 
-            with credit_col_2:
-                pub_rec = input_slider(
-                    "Public records",
-                    min_value=0,
-                    max_value=8,
-                    value=int(defaults["pub_rec"]),
-                    step=1,
-                    key=f"{key_prefix}_pub_rec"
-                )
-
+            with revol_bal_col:
                 revol_bal = input_slider(
                     "Revolving balance",
                     min_value=0,
@@ -948,6 +967,7 @@ with left_col:
                     key=f"{key_prefix}_revol_bal"
                 )
 
+            with revol_util_col:
                 revol_util = input_slider(
                     "Revolving utilization",
                     min_value=0.0,
@@ -956,6 +976,28 @@ with left_col:
                     step=1.0,
                     value_format="%.0f%%",
                     key=f"{key_prefix}_revol_util"
+                )
+
+            public_records_col, delinquencies_col = st.columns(2)
+
+            with public_records_col:
+                pub_rec = input_slider(
+                    "Public records",
+                    min_value=0,
+                    max_value=8,
+                    value=int(defaults["pub_rec"]),
+                    step=1,
+                    key=f"{key_prefix}_pub_rec"
+                )
+
+            with delinquencies_col:
+                delinq_2yrs = input_slider(
+                    "Delinquencies, last 2 years",
+                    min_value=0,
+                    max_value=10,
+                    value=int(defaults["delinq_2yrs"]),
+                    step=1,
+                    key=f"{key_prefix}_delinq_2yrs"
                 )
 
         action_col, _ = st.columns([0.24, 0.76])
